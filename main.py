@@ -1,11 +1,11 @@
 import sys
 from agents.graph import build_graph
 from langchain_core.messages import HumanMessage
-from retrieval.hybrid_search import HybridRAG
+from agents.tools import rag_engine
 
 def initialize_system():
     print("Initializing Vector Database and Ingesting Samples...")
-    rag = HybridRAG()
+    rag = rag_engine
     
     # Injecting sample data to test the RAG pipeline
     sample_docs = [

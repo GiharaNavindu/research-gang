@@ -1,0 +1,7 @@
+langchain
+langchain-google-genai
+langgraph
+qdrant-client
+flashrank
+fastembed
+python-dotenv

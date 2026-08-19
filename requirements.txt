@@ -5,3 +5,5 @@ qdrant-client
 flashrank
 fastembed
 python-dotenv
+fastapi
+uvicorn

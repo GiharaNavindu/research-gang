@@ -2,9 +2,31 @@ from langchain_core.tools import tool
 from retrieval.hybrid_search import HybridRAG
 from retrieval.reranker import FlashReranker
 
-# Initialize global instances to maintain connection pooling
-rag_engine = HybridRAG()
-reranker = FlashReranker()
+class LazyProxy:
+    """A helper class to defer instantiation of heavy classes until they are accessed.
+    This prevents lock conflicts in uvicorn's reload/multiprocessing environments.
+    """
+    def __init__(self, creator):
+        self._creator = creator
+        self._instance = None
+
+    def _get_instance(self):
+        if self._instance is None:
+            self._instance = self._creator()
+        return self._instance
+
+    def __getattr__(self, name):
+        return getattr(self._get_instance(), name)
+
+    def __setattr__(self, name, value):
+        if name in ("_creator", "_instance"):
+            self.__dict__[name] = value
+        else:
+            setattr(self._get_instance(), name, value)
+
+# Initialize global instances lazily to avoid locking or loading models during master process import
+rag_engine = LazyProxy(lambda: HybridRAG())
+reranker = LazyProxy(lambda: FlashReranker())
 
 @tool
 def search_knowledge_base(query: str) -> str:
